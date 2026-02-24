@@ -4,6 +4,15 @@ import * as os from "os";
 
 const NOTE_PATH = path.join(os.homedir(), ".1note.md");
 
+function scrollToEnd(editor: vscode.TextEditor) {
+  const doc = editor.document;
+  const lastLine = doc.lineCount - 1;
+  const lastChar = doc.lineAt(lastLine).text.length;
+  const endPos = new vscode.Position(lastLine, lastChar);
+  editor.selection = new vscode.Selection(endPos, endPos);
+  editor.revealRange(new vscode.Range(endPos, endPos));
+}
+
 export function activate(context: vscode.ExtensionContext) {
   const noteUri = vscode.Uri.file(NOTE_PATH);
 
@@ -29,12 +38,14 @@ export function activate(context: vscode.ExtensionContext) {
       });
     }
 
-    // Move cursor to end of file
-    const lastLine = doc.lineCount - 1;
-    const lastChar = doc.lineAt(lastLine).text.length;
-    const endPos = new vscode.Position(lastLine, lastChar);
-    editor.selection = new vscode.Selection(endPos, endPos);
-    editor.revealRange(new vscode.Range(endPos, endPos), vscode.TextEditorRevealType.Default);
+    scrollToEnd(editor);
+  });
+
+  // Scroll to bottom when .1note.md is opened by any process
+  const onEditorChange = vscode.window.onDidChangeActiveTextEditor((editor) => {
+    if (editor && editor.document.uri.fsPath === NOTE_PATH) {
+      scrollToEnd(editor);
+    }
   });
 
   // Status bar button
@@ -55,7 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
     timer = setTimeout(() => e.document.save(), 1000);
   });
 
-  context.subscriptions.push(openCmd, statusBar, onChange);
+  context.subscriptions.push(openCmd, onEditorChange, statusBar, onChange);
 }
 
 export function deactivate() {}
