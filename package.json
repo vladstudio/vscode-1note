@@ -3,6 +3,11 @@
   "displayName": "1note",
   "description": "Quick access to your ~/.1note.md",
   "version": "0.0.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vladstudio/vscode-1note"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
